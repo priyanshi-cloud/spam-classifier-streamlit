@@ -1,4 +1,12 @@
+import os
+import sys
 import streamlit as st
+
+# Ensure the model directory is on sys.path so local modules can be imported reliably
+ROOT_DIR = os.path.dirname(__file__)
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from detector import predict_message
 
 # ---------------- PAGE SETUP ---------------- #
