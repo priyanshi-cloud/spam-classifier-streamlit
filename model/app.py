@@ -1,5 +1,7 @@
 import os
 import sys
+import csv
+import datetime
 import streamlit as st
 
 # Ensure the model directory is on sys.path so local modules can be imported reliably
@@ -8,6 +10,18 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from detector import predict_message
+
+# Feedback file (appends user feedback)
+FEEDBACK_CSV = os.path.join(ROOT_DIR, "feedback.csv")
+
+# Example/demo messages visitors can load quickly
+EXAMPLES = {
+    "-- choose an example --": "",
+    "Lottery / Prize Scam": "Congratulations! You won a lottery of 1,00,000 rupees. Claim now!",
+    "Urgent Bank Alert": "Urgent: Your account will be suspended in 24 hours. Verify now: http://fake-bank.example/verify",
+    "Job Offer (Spam)": "Work from home: Earn 50000/month. No experience needed. Apply now!",
+    "Legit Bank Notification": "SBI Alert: Your balance is 2500 rupees.",
+}
 
 # ---------------- PAGE SETUP ---------------- #
 st.set_page_config(page_title="AI Scam Detector", page_icon="🚨", layout="centered")
@@ -65,16 +79,43 @@ st.markdown("### 🔍 Analyze Messages Like a Digital Detective")
 
 st.divider()
 
-# ---------------- INPUT ---------------- #
-msg = st.text_area("✍️ Enter Message", height=150, placeholder="Paste suspicious message here...")
+# ---------------- THEME SELECTOR ---------------- #
+theme = st.sidebar.selectbox("Theme", ["Default", "Ocean", "Sunset"], index=0)
 
-# ---------------- BUTTON ---------------- #
+_BG = {
+    "Default": "linear-gradient(135deg, #0f172a, #1e293b)",
+    "Ocean": "linear-gradient(135deg, #09203f, #537895)",
+    "Sunset": "linear-gradient(135deg, #ff7a7a, #ffb86b)",
+}
+
+# Override background based on selection
+st.markdown(f"<style>.stApp{{background: {_BG.get(theme)}; color: white;}}</style>", unsafe_allow_html=True)
+
+# ---------------- EXAMPLES / INPUT ---------------- #
+st.sidebar.markdown("### Examples")
+example_key = st.sidebar.selectbox("Pick an example to load", list(EXAMPLES.keys()))
+if st.sidebar.button("Load example") and example_key in EXAMPLES:
+    st.session_state['msg'] = EXAMPLES[example_key]
+if st.sidebar.button("Clear input"):
+    st.session_state['msg'] = ""
+
+if 'msg' not in st.session_state:
+    st.session_state['msg'] = ""
+
+msg = st.text_area("✍️ Enter Message", value=st.session_state.get('msg', ''), key='msg', height=150, placeholder="Paste suspicious message here...")
+
+# Quick demo dataset viewer
+with st.expander("Demo messages / dataset examples"):
+    for name, text in EXAMPLES.items():
+        if name != "-- choose an example --":
+            st.markdown(f"**{name}**: {text}")
+
+# ---------------- BUTTON / PREDICTION ---------------- #
 if st.button("🔍 Scan Message", use_container_width=True):
-
-    if msg.strip() == "":
+    if st.session_state['msg'].strip() == "":
         st.warning("Please enter a message!")
     else:
-        pred, prob, psych, unrealistic, link_flag = predict_message(msg)
+        pred, prob, psych, unrealistic, link_flag = predict_message(st.session_state['msg'])
 
         # ---------------- RESULT ---------------- #
         st.markdown("### 🚦 Result")
@@ -94,8 +135,9 @@ if st.button("🔍 Scan Message", use_container_width=True):
         else:
             st.success("✅ Safe Message")
 
-        # ---------------- PROBABILITY ---------------- #
+        # ---------------- PROBABILITY / CONFIDENCE METER ---------------- #
         st.markdown("### 📊 Scam Probability")
+        st.metric("Confidence", f"{int(prob*100)}%")
         st.progress(int(prob * 100))
         st.write(f"**Confidence Score:** {prob:.2f}")
 
@@ -148,6 +190,24 @@ if st.button("🔍 Scan Message", use_container_width=True):
             st.warning("Avoid clicking unknown links.")
         else:
             st.info("No immediate threat detected, but always stay cautious.")
+
+        # ---------------- FEEDBACK FORM ---------------- #
+        st.markdown("---")
+        st.markdown("### 📝 Help improve the model — give feedback")
+        with st.form("feedback_form"):
+            was_correct = st.radio("Was the prediction correct?", ("Yes", "No"))
+            comments = st.text_area("Comments (optional)")
+            submit_fb = st.form_submit_button("Submit feedback")
+            if submit_fb:
+                # append feedback to CSV
+                row = [datetime.datetime.utcnow().isoformat(), st.session_state['msg'], pred, float(prob), was_correct, comments]
+                write_header = not os.path.exists(FEEDBACK_CSV)
+                with open(FEEDBACK_CSV, 'a', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    if write_header:
+                        writer.writerow(["timestamp_utc", "message", "pred", "prob", "was_correct", "comments"])
+                    writer.writerow(row)
+                st.success("Thanks — your feedback has been recorded.")
 
 # ---------------- FOOTER ---------------- #
 st.divider()
