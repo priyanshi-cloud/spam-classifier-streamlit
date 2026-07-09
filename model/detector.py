@@ -79,13 +79,13 @@ if __name__ == "__main__":
 
     # Result
     if pred == 1:
-        print("🚨 Scam Message")
+        print("⚠️ Potential scam/spam message")
     else:
-        print("✅ Safe Message")
+        print("✅ Low-risk message")
 
-    print(f"Scam Probability: {prob:.2f}")
+    print(f"Suspicion score: {prob:.2f}")
     print("Psychological Triggers:", psych)
 
     # Smart warning (your USP 🔥)
     if pred == 0 and (len(psych) >= 2 or prob > 0.3):
-        print("⚠️ Suspicious Message (Psychological manipulation detected)")
+        print("⚠️ Suspicious message (psychological manipulation detected)")

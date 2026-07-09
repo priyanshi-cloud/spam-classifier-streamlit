@@ -1,10 +1,10 @@
 # AI Scam & Manipulation Detector
 
-A Streamlit-powered scam detection app that combines machine learning with psychological signal analysis to flag suspicious messages.
+A Streamlit-powered suspicious message detector that combines machine learning with psychological signal analysis to flag potentially spammy or scam-like messages.
 
 ## What it does
 
-- Detects scam and phishing-like text content
+- Detects suspicious, spam-like, and phishing-like text content
 - Scores message risk with a probability value
 - Identifies manipulation triggers like urgency, fear, greed, authority, and links
 - Provides safety advice and a clear risk level

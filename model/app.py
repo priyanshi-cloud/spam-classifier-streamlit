@@ -24,7 +24,7 @@ EXAMPLES = {
 }
 
 # ---------------- PAGE SETUP ---------------- #
-st.set_page_config(page_title="AI Scam Detector", page_icon="🚨", layout="centered")
+st.set_page_config(page_title="AI Suspicious Message Detector", page_icon="🚨", layout="centered")
 
 # ---------------- CUSTOM UI ---------------- #
 st.markdown("""
@@ -74,8 +74,9 @@ hr {
 """, unsafe_allow_html=True)
 
 # ---------------- TITLE ---------------- #
-st.title("🚨 AI Scam & Manipulation Detector")
+st.title("🚨 AI Suspicious Message Detector")
 st.markdown("### 🔍 Analyze Messages Like a Digital Detective")
+st.caption("This tool highlights suspicious patterns and manipulation cues; it does not confirm that a message is fraud.")
 
 st.divider()
 
@@ -121,22 +122,22 @@ if st.button("🔍 Scan Message", use_container_width=True):
         st.markdown("### 🚦 Result")
 
         if pred == 1:
-            st.error("🚨 Scam Message Detected")
+            st.error("⚠️ Potential Scam/Spam Detected")
 
         elif unrealistic:
-            st.error("🚨 Unrealistic amount detected — likely a scam!")
+            st.error("⚠️ Unusual amount detected — treat with caution")
 
         elif link_flag:
-            st.warning("⚠️ Contains link or redirection — be cautious!")
+            st.warning("⚠️ Contains a link or redirection — verify before clicking")
 
         elif prob > 0.4 or len(psych) >= 2:
-            st.warning("⚠️ Suspicious Message Detected")
+            st.warning("⚠️ Suspicious or promotional message detected")
 
         else:
-            st.success("✅ Safe Message")
+            st.success("✅ Low-risk message")
 
         # ---------------- PROBABILITY / CONFIDENCE METER ---------------- #
-        st.markdown("### 📊 Scam Probability")
+        st.markdown("### 📊 Suspicion Score")
         st.metric("Confidence", f"{int(prob*100)}%")
         st.progress(int(prob * 100))
         st.write(f"**Confidence Score:** {prob:.2f}")
@@ -145,11 +146,11 @@ if st.button("🔍 Scan Message", use_container_width=True):
         st.markdown("### 🎯 Risk Level")
 
         if prob > 0.7 or unrealistic:
-            st.error("High Risk 🚨")
+            st.error("Potential High Risk 🚨")
         elif prob > 0.4:
-            st.warning("Medium Risk ⚠️")
+            st.warning("Potential Medium Risk ⚠️")
         else:
-            st.success("Low Risk ✅")
+            st.success("Low Risk / Low Suspicion ✅")
 
         # ---------------- PSYCHOLOGY ---------------- #
         st.markdown("### 🧠 Psychological Triggers")
@@ -165,10 +166,10 @@ if st.button("🔍 Scan Message", use_container_width=True):
         st.markdown("### 🤖 AI Explanation")
 
         if pred == 1:
-            st.write("This message matches patterns commonly found in scam messages.")
+            st.write("This message contains patterns commonly used in promotional, spam, or scam messages. Verify the sender before taking action.")
 
         if unrealistic:
-            st.write("The message contains an unrealistic amount, which is a strong scam indicator.")
+            st.write("The message includes an unrealistic amount, which is often seen in spam or scam content.")
 
         if "Greed" in psych:
             st.write("• It tries to attract you using money or rewards.")
@@ -186,10 +187,10 @@ if st.button("🔍 Scan Message", use_container_width=True):
         st.markdown("### 🛡️ Safety Advice")
 
         if pred == 1 or unrealistic or len(psych) >= 2:
-            st.warning("Do NOT share personal details, OTP, or bank information.")
-            st.warning("Avoid clicking unknown links.")
+            st.warning("Do not share personal details, OTP, or bank information.")
+            st.warning("Avoid clicking unknown links unless you can verify the sender.")
         else:
-            st.info("No immediate threat detected, but always stay cautious.")
+            st.info("No immediate threat detected, but stay cautious and verify unexpected messages.")
 
         # ---------------- FEEDBACK FORM ---------------- #
         st.markdown("---")
