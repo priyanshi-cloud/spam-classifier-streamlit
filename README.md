@@ -65,3 +65,11 @@ Then open the displayed URL, for example:
 ## License
 
 Add your preferred license information here.
+
+## Live Demo
+
+You can try the live demo of the app on Streamlit Cloud:
+
+https://spam-classifier-app-nekmtjiyr4zbdn3p3rvxfz.streamlit.app/
+
+Open the link to interact with the deployed model and UI.
