@@ -62,9 +62,6 @@ Then open the displayed URL, for example:
 - `model/train.py` produces `model/model.pkl` and `model/vectorizer.pkl`.
 - `model/augment_data.py` is used to expand the training data with additional examples.
 
-## License
-
-Add your preferred license information here.
 
 ## Live Demo
 
